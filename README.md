@@ -431,6 +431,48 @@ Para praticar o processo de Code Review, siga os passos abaixo:
 8. **Mesclar o PR**:
    - Após aprovação, o autor do PR pode mesclar as alterações na branch `main`.
 
+#### **Passo 13: Adicionar Requirements Novos**
+
+Para as aulas sobre fixtures e mocking, precisamos adicionar novas dependências ao `requirements.txt`:
+
+**requirements.txt (atualizado)**
+
+```
+# Framework principal
+fastapi[standard]
+
+# Ferramentas de Qualidade e Teste
+pytest
+pytest-mock
+black
+flake8
+
+# Biblioteca HTTP para consumir APIs externas
+requests
+```
+
+Instale as novas dependências:
+
+```bash
+pip install -r requirements.txt
+```
+
+#### **Passo 14: Alterar o main.py para Consumir API Externa**
+
+Vamos modificar `app/main.py` para incluir endpoints que fazem chamadas HTTP para a API JSONPlaceholder. Isso permitirá demonstrar conceitos de mocking nos testes.
+
+#### **Passo 15: Remover test_main.py**
+
+Como agora temos arquivos específicos para fixtures e mocking, vamos remover o arquivo antigo `test_main.py`:
+
+```bash
+rm tests/test_main.py
+```
+
+#### **Passo 16: Criar test_fixtures.py e test_mocking.py**
+
+Agora vamos criar os arquivos de teste específicos para cada aula.
+
 ---
 
 **Nota:** Certifique-se de seguir as boas práticas de formatação e linting antes de abrir o PR. Execute os comandos abaixo para garantir que seu código está limpo:

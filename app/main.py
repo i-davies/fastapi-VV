@@ -1,62 +1,109 @@
-from fastapi import FastAPI
+# Endpoints para testes com mocking e fixtures
+# API externa: JSONPlaceholder (https://jsonplaceholder.typicode.com)
+
+from fastapi import FastAPI, HTTPException
+import requests
 
 app = FastAPI()
 
+# URL base da API externa
+BASE_URL = "https://jsonplaceholder.typicode.com"
+
+
+# ENDPOINTS
+
 
 @app.get("/")
-def read_root():
-    return {"message": "Olá QTS"}
+def root():
+    """Endpoint raiz"""
+    return {"message": "Endpoints para testes com mocking e fixtures"}
 
 
-@app.get("/top_dez")
-def top_dez(nome: str):
-    arr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    return arr[0]  # Return the first element to avoid IndexError
+@app.get("/posts")
+def get_posts(limit: int = 10):
+    """Lista posts (com limite opcional)"""
+    response = requests.get(f"{BASE_URL}/posts")
+    if response.status_code != 200:
+        raise HTTPException(status_code=500, detail="Erro na API externa")
+    posts = response.json()
+    return posts[:limit]
 
 
-@app.get("/user/{user_id}")
-def read_user(user_id: int, q: str | None = None):
-    return {"user_id": user_id, "q": q}
+@app.get("/posts/{post_id}")
+def get_post(post_id: int):
+    """Obtém um post específico por ID"""
+    response = requests.get(f"{BASE_URL}/posts/{post_id}")
+    if response.status_code == 404:
+        raise HTTPException(status_code=404, detail="Post não encontrado")
+    if response.status_code != 200:
+        raise HTTPException(status_code=500, detail="Erro na API externa")
+    return response.json()
 
 
-@app.get(
-    "/gabriel/<name>",
-)
-def say_gabriel(name):
-    saudacao = "Bom dia, Boa tarde, Boa noite"
-
-    return {
-        "mensagem": f"{saudacao}, {name}!",
-    }
+@app.get("/posts/{post_id}/comments")
+def get_post_comments(post_id: int):
+    """Obtém comentários de um post específico"""
+    response = requests.get(f"{BASE_URL}/posts/{post_id}/comments")
+    if response.status_code != 200:
+        raise HTTPException(status_code=500, detail="Erro na API externa")
+    return response.json()
 
 
-def uma_funcao_muito_longa(param1, param2, param3, param4, param5):
-    print("Função muito longa!")
-    return param1, param2, param3, param4, param5
+@app.get("/users")
+def get_users():
+    """Lista todos os usuários"""
+    response = requests.get(f"{BASE_URL}/users")
+    if response.status_code != 200:
+        raise HTTPException(status_code=500, detail="Erro na API externa")
+    return response.json()
 
 
-@app.get("/mensagem")
-def return_f299():
-    return {
-        "message": (
-            "Mudanças na retirada de notebooks\n\n"
-            "Com o objetivo de aprimorar o controle e a segurança dos "
-            "equipamentos, desde o início do ano foi feito o fechamento "
-            "dos carrinhos de carregamento dos notebooks às 19h30.\n\n"
-            "Para situações em que um aluno eventualmente se atrase, foi "
-            "permitida a retirada do equipamento por um colega, em seu nome. "
-            "No entanto, observamos que em algumas turmas essa permissão tem "
-            "sido utilizada de forma indevida, com um único aluno retirando "
-            "vários notebooks (em alguns casos, quase para toda a turma), o "
-            "que acaba incentivando atrasos sem justificativas relevantes.\n\n"
-            "Diante disso, a partir de 2026, os carrinhos "
-            "passarão a ser trancados mais cedo, às 18h50, não sendo mais "
-            "permitida a retirada de notebooks por terceiros.\n\n"
-            "Apenas alunos residentes em cidades onde atrasos são recorrentes "
-            "(como Cananéia, Eldorado, entre outras) poderão realizar a "
-            "retirada até 19h30. Casos excepcionais deverão ser tratados "
-            "diretamente com a coordenação.\n\n"
-            "Lamento a necessidade dessa medida e conto com a compreensão de "
-            "todos. Obrigado."
-        )
-    }
+@app.get("/users/{user_id}")
+def get_user(user_id: int):
+    """Obtém um usuário específico por ID"""
+    response = requests.get(f"{BASE_URL}/users/{user_id}")
+    if response.status_code == 404:
+        raise HTTPException(status_code=404, detail="Usuário não encontrado")
+    if response.status_code != 200:
+        raise HTTPException(status_code=500, detail="Erro na API externa")
+    return response.json()
+
+
+@app.get("/users/{user_id}/posts")
+def get_user_posts(user_id: int):
+    """Obtém todos os posts de um usuário específico"""
+    response = requests.get(f"{BASE_URL}/users/{user_id}/posts")
+    if response.status_code != 200:
+        raise HTTPException(status_code=500, detail="Erro na API externa")
+    return response.json()
+
+
+@app.get("/comments")
+def get_comments(limit: int = 20):
+    """Lista comentários (com limite opcional)"""
+    response = requests.get(f"{BASE_URL}/comments")
+    if response.status_code != 200:
+        raise HTTPException(status_code=500, detail="Erro na API externa")
+    comments = response.json()
+    return comments[:limit]
+
+
+@app.get("/todos/{todo_id}")
+def get_todo(todo_id: int):
+    """Obtém uma tarefa específica por ID"""
+    response = requests.get(f"{BASE_URL}/todos/{todo_id}")
+    if response.status_code == 404:
+        raise HTTPException(status_code=404, detail="Tarefa não encontrada")
+    if response.status_code != 200:
+        raise HTTPException(status_code=500, detail="Erro na API externa")
+    return response.json()
+
+
+@app.get("/albums/{album_id}/photos")
+def get_album_photos(album_id: int, limit: int = 10):
+    """Obtém fotos de um álbum específico"""
+    response = requests.get(f"{BASE_URL}/albums/{album_id}/photos")
+    if response.status_code != 200:
+        raise HTTPException(status_code=500, detail="Erro na API externa")
+    photos = response.json()
+    return photos[:limit]

@@ -13,9 +13,15 @@ def read_user(user_id: int, q: str | None = None):
     return {"user_id": user_id, "q": q}
 
 
-@app.get("/gabriel/{name}")
-def say_gabriel(name: str):
-    return {"message": f"Olá, {name}!"}
+@app.get(
+    "/gabriel/<name>",
+)
+def say_gabriel(name):
+    saudacao = "Bom dia, Boa tarde, Boa noite"
+
+    return {
+        "mensagem": f"{saudacao}, {name}!",
+    }
 
 
 def uma_funcao_muito_longa(param1, param2, param3, param4, param5):

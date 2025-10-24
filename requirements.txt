@@ -4,3 +4,4 @@ black
 flake8
 requests
 pytest-mock
+pytest-cov

@@ -107,3 +107,79 @@ def get_album_photos(album_id: int, limit: int = 10):
         raise HTTPException(status_code=500, detail="Erro na API externa")
     photos = response.json()
     return photos[:limit]
+
+
+@app.get("/users/{user_id}/stats")
+def get_user_stats(user_id: int):
+    """
+    Obtém estatísticas de atividade de um usuário:
+    - Total de posts
+    - Média de comentários por post
+    - Post mais comentado
+    """
+    # 1. Buscar posts do usuário
+    response = requests.get(f"{BASE_URL}/users/{user_id}/posts")
+
+    if response.status_code != 200:
+        raise HTTPException(
+            status_code=500, detail="Erro ao buscar posts do usuário"
+        )
+
+    posts = response.json()
+
+    # 2. Verificar se usuário tem posts
+    if not posts:
+        raise HTTPException(
+            status_code=404, detail=f"Usuário {user_id} não possui posts"
+        )
+
+    # 3. Buscar comentários de cada post
+    total_comments = 0
+    post_comments_count = {}
+
+    for post in posts:
+        post_id = post["id"]
+        comments_response = requests.get(
+            f"{BASE_URL}/posts/{post_id}/comments"
+        )
+
+        if comments_response.status_code != 200:
+            raise HTTPException(
+                status_code=500, detail="Erro ao buscar comentários"
+            )
+
+        comments = comments_response.json()
+        comments_count = len(comments)
+
+        total_comments += comments_count
+        post_comments_count[post_id] = {
+            "count": comments_count,
+            "title": post["title"],
+        }
+
+    # 4. Calcular estatísticas
+    total_posts = len(posts)
+    average_comments = total_comments / total_posts if total_posts > 0 else 0.0
+
+    # 5. Encontrar post mais comentado
+    most_commented = max(
+        post_comments_count.items(),
+        key=lambda x: x[1]["count"],
+        default=(None, None),
+    )
+
+    most_commented_post = {
+        "id": most_commented[0] if most_commented[0] else None,
+        "title": most_commented[1]["title"] if most_commented[1] else "",
+        "comments_count": (
+            most_commented[1]["count"] if most_commented[1] else 0
+        ),
+    }
+
+    # 6. Retornar estatísticas
+    return {
+        "user_id": user_id,
+        "total_posts": total_posts,
+        "average_comments_per_post": round(average_comments, 2),
+        "most_commented_post": most_commented_post,
+    }

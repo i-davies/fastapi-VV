@@ -4,7 +4,12 @@
 from fastapi import FastAPI, HTTPException
 import requests
 
+from app.sql_injection_endpoints import router as sql_injection_router
+
 app = FastAPI()
+
+# Registrar rotas de SQL Injection
+app.include_router(sql_injection_router, tags=["SQL Injection"])
 
 # URL base da API externa
 BASE_URL = "https://jsonplaceholder.typicode.com"

@@ -26,3 +26,6 @@ Thumbs.db
 
 # DB
 database.db
+
+# Zap Proxy
+zap_*.html
